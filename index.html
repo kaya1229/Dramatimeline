@@ -3,51 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drama Line Receipt</title>
+    <title>Drama Line: Vertical Receipt</title>
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #e5e7eb;
-            --receipt-bg: #fdfdfb;
-            --ink-black: #1a1a1a;
-            --point-red: #ff4b4b;
-        }
-
-        body {
-            font-family: 'Courier Prime', 'Noto Sans KR', monospace;
-            background-color: var(--bg-color);
-            display: flex; flex-direction: column; align-items: center;
-            padding: 20px; margin: 0; color: var(--ink-black);
-        }
-
-        .receipt {
-            width: 100%; max-width: 420px; background: var(--receipt-bg);
-            padding: 40px 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-            position: relative;
-            clip-path: polygon(0% 1%, 5% 0%, 10% 1%, 15% 0%, 20% 1%, 25% 0%, 30% 1%, 35% 0%, 40% 1%, 45% 0%, 50% 1%, 55% 0%, 60% 1%, 65% 0%, 70% 1%, 75% 0%, 80% 1%, 85% 0%, 90% 1%, 95% 0%, 100% 1%, 100% 99%, 95% 100%, 90% 99%, 85% 100%, 80% 99%, 75% 100%, 70% 99%, 65% 100%, 60% 99%, 55% 100%, 50% 99%, 45% 100%, 40% 99%, 35% 100%, 30% 99%, 25% 100%, 20% 99%, 15% 100%, 10% 99%, 5% 100%, 0% 99%);
-        }
-
+        :root { --bg: #e5e7eb; --receipt: #fdfdfb; --ink: #1a1a1a; --red: #ff4b4b; }
+        body { font-family: 'Courier Prime', 'Noto Sans KR', monospace; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; color: var(--ink); }
+        
+        .receipt { width: 100%; max-width: 420px; background: var(--receipt); padding: 40px 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; clip-path: polygon(0% 1%, 5% 0%, 10% 1%, 15% 0%, 20% 1%, 25% 0%, 30% 1%, 35% 0%, 40% 1%, 45% 0%, 50% 1%, 55% 0%, 60% 1%, 65% 0%, 70% 1%, 75% 0%, 80% 1%, 85% 0%, 90% 1%, 95% 0%, 100% 1%, 100% 99%, 95% 100%, 90% 99%, 85% 100%, 80% 99%, 75% 100%, 70% 99%, 65% 100%, 60% 99%, 55% 100%, 50% 99%, 45% 100%, 40% 99%, 35% 100%, 30% 99%, 25% 100%, 20% 99%, 15% 100%, 10% 99%, 5% 100%, 0% 99%); }
         .header { text-align: center; border-bottom: 2px dashed #ccc; padding-bottom: 15px; margin-bottom: 20px; }
         input { width: 100%; border: none; border-bottom: 1px solid #ddd; background: transparent; padding: 10px 0; font-family: inherit; margin-bottom: 15px; outline: none; }
+        
+        /* 세로 스크롤 영역 */
+        .canvas-container { position: relative; width: 100%; height: 400px; overflow-y: auto; border: 1px solid var(--ink); background: white; margin-top: 10px; }
+        canvas { display: block; cursor: crosshair; }
+        
+        /* 판독 도장 스타일 */
+        #verdict-stamp { display: none; text-align: center; font-weight: bold; border: 3px double var(--red); color: var(--red); padding: 5px; transform: rotate(-5deg); margin: 15px 0; font-size: 1.2rem; }
 
-        /* 검색 결과 */
-        #search-results { list-style: none; padding: 0; border: 1px solid #eee; max-height: 150px; overflow-y: auto; display: none; background: white; margin-bottom: 15px; }
-        #search-results li { padding: 10px; border-bottom: 1px dotted #ccc; cursor: pointer; font-size: 0.85rem; }
-
-        /* 캔버스 스크롤 영역 핵심 */
-        .canvas-scroll-wrapper {
-            width: 100%;
-            overflow-x: auto; /* 좌우 스크롤 허용 */
-            border: 1px solid var(--ink-black);
-            background: white;
-            margin-top: 10px;
-            -webkit-overflow-scrolling: touch;
-        }
-        canvas { display: block; touch-action: none; }
-
-        .btn { background: var(--ink-black); color: white; border: none; padding: 12px; cursor: pointer; font-family: inherit; width: 100%; font-weight: bold; margin-top: 10px; }
-        .my-records-btn { background: none; border: 1px solid var(--ink-black); padding: 5px 10px; font-size: 0.7rem; cursor: pointer; margin-top: 15px; width: 100%; }
-        #history-list { display: none; margin-top: 15px; border-top: 1px solid #ddd; padding-top: 10px; font-size: 0.8rem; }
+        .btn { background: var(--ink); color: white; border: none; padding: 12px; cursor: pointer; font-family: inherit; width: 100%; font-weight: bold; margin-top: 10px; }
+        .archive-item { border-bottom: 1px dotted #ccc; padding: 8px 0; font-size: 0.8rem; cursor: pointer; }
+        .archive-item:hover { background: #f1f1f1; }
+        #search-results { list-style: none; padding: 0; background: white; border: 1px solid #eee; display: none; }
+        #search-results li { padding: 10px; border-bottom: 1px dotted #ccc; cursor: pointer; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -55,191 +32,183 @@
 <div class="receipt">
     <div class="header">
         <h1>DRAMA LINE</h1>
-        <p style="font-size: 0.7rem;">OFFICIAL RECEIPT</p>
+        <p style="font-size: 0.7rem;">VERTICAL CRITIC REPORT</p>
     </div>
 
-    <div id="login-section">
-        <input type="text" id="nickname" placeholder="NICKNAME">
-        <input type="password" id="password" placeholder="PASSWORD (4 DIGITS)">
-        <button class="btn" onclick="handleLogin()">LOGIN / JOIN</button>
+    <div id="auth-section">
+        <input type="text" id="nick" placeholder="NICKNAME">
+        <input type="password" id="pw" placeholder="PIN (4 DIGITS)">
+        <button class="btn" onclick="login()">ENTER</button>
     </div>
 
     <div id="main-section" style="display:none;">
         <div style="font-size: 0.75rem; margin-bottom: 10px;">
-            CASHER: <b id="user-display"></b><br>
-            DATE: <span id="current-date"></span>
+            CASHER: <b id="user-name"></b> | DATE: <span id="date"></span>
         </div>
-        
-        <input type="text" id="drama-search" placeholder="SEARCH DRAMA TITLE..." oninput="searchDrama()">
+
+        <input type="text" id="search" placeholder="SEARCH OR ADD TITLE..." oninput="searchDrama()">
         <ul id="search-results"></ul>
 
-        <div id="canvas-section" style="display:none;">
-            <div style="display:flex; justify-content: space-between; font-size: 0.8rem; font-weight: bold;">
+        <div id="editor-section" style="display:none;">
+            <div style="display:flex; justify-content: space-between; font-weight:bold; font-size: 0.9rem;">
                 <span id="target-title">TITLE</span>
                 <span id="target-eps">00 EPS</span>
             </div>
             
-            <div class="canvas-scroll-wrapper">
-                <canvas id="chartCanvas" height="250"></canvas>
+            <div class="canvas-container">
+                <canvas id="chartCanvas"></canvas>
             </div>
             
-            <button class="btn" onclick="saveData()">PRINT & SAVE</button>
+            <div id="verdict-stamp">용두사미 판독중...</div>
+            <button class="btn" onclick="save()">PRINT & SAVE</button>
         </div>
 
-        <button class="my-records-btn" onclick="toggleHistory()">VIEW MY ARCHIVE ▼</button>
-        <div id="history-list"></div>
-        <p onclick="logout()" style="font-size: 0.6rem; text-align: right; cursor: pointer; color: #999; margin-top: 20px;">LOGOUT</p>
+        <button class="btn" style="background:none; color:var(--ink); border:1px solid var(--ink); font-size:0.7rem;" onclick="toggleArchive()">VIEW ARCHIVE ▼</button>
+        <div id="archive-list" style="display:none; margin-top:10px;"></div>
+        <p onclick="logout()" style="font-size: 0.6rem; text-align:right; color:#999; cursor:pointer; margin-top:20px;">LOGOUT</p>
     </div>
 </div>
 
 <script>
-    const dramaDB = [
-        { title: "창란결", eps: 36 },
-        { title: "더 글로리", eps: 16 },
-        { title: "강철삼림", eps: 24 },
-        { title: "눈물의 여왕", eps: 16 }
-    ];
-
-    let currentUser = JSON.parse(localStorage.getItem('dl_user')) || null;
-    let selectedDrama = null;
-    let points = [];
-    const minStepX = 40; // 최소 간격 (40px)
+    const dramaDB = [ {title:"창란결", eps:36}, {title:"더 글로리", eps:16}, {title:"강철삼림", eps:24} ];
+    let user = JSON.parse(localStorage.getItem('dl_u')) || null;
+    let currentDrama = null;
+    let points = []; 
+    const stepY = 40; // 세로 간격 고정
     const canvas = document.getElementById('chartCanvas');
     const ctx = canvas.getContext('2d');
 
-    if (currentUser) showMain();
+    if(user) showMain();
 
-    function handleLogin() {
-        const nick = document.getElementById('nickname').value;
-        const pw = document.getElementById('password').value;
-        if (!nick || pw.length < 4) return alert("닉네임과 비번(4자리)을 입력하세요.");
-        currentUser = { nick, pw };
-        localStorage.setItem('dl_user', JSON.stringify(currentUser));
+    function login() {
+        const n = document.getElementById('nick').value;
+        const p = document.getElementById('pw').value;
+        if(!n || p.length < 4) return alert("필수 정보를 입력하세요.");
+        user = {n, p}; localStorage.setItem('dl_u', JSON.stringify(user));
         showMain();
     }
 
     function showMain() {
-        document.getElementById('login-section').style.display = 'none';
-        document.getElementById('main-section').style.display = 'block';
-        document.getElementById('user-display').innerText = currentUser.nick;
-        document.getElementById('current-date').innerText = new Date().toLocaleDateString();
-        loadHistory();
+        document.getElementById('auth-section').style.display='none';
+        document.getElementById('main-section').style.display='block';
+        document.getElementById('user-name').innerText = user.n;
+        document.getElementById('date').innerText = new Date().toLocaleDateString();
+        loadArchive();
     }
 
     function searchDrama() {
-        const query = document.getElementById('drama-search').value.trim().toLowerCase();
-        const results = document.getElementById('search-results');
-        if(!query) return results.style.display = 'none';
-
-        const filtered = dramaDB.filter(d => d.title.toLowerCase().includes(query));
-        let html = filtered.map(d => `<li onclick="selectDrama('${d.title}', ${d.eps})">${d.title} (${d.eps}화)</li>`).join('');
-        
-        // 검색 결과 없을 때 직접 추가
-        if(filtered.length === 0) {
-            html = `<li onclick="addNewDrama()">+ "${query}" 직접 추가하기</li>`;
-        }
-        
-        results.innerHTML = html;
-        results.style.display = 'block';
+        const q = document.getElementById('search').value.trim();
+        const res = document.getElementById('search-results');
+        if(!q) return res.style.display='none';
+        const filtered = dramaDB.filter(d => d.title.includes(q));
+        let html = filtered.map(d => `<li onclick="initCanvas('${d.title}', ${d.eps})">${d.title} (${d.eps}화)</li>`).join('');
+        if(!filtered.length) html = `<li onclick="addManual('${q}')">+ '${q}' 직접 추가하기</li>`;
+        res.innerHTML = html; res.style.display='block';
     }
 
-    function addNewDrama() {
-        const title = document.getElementById('drama-search').value;
-        const eps = prompt(`'${title}'은 몇 부작인가요?`, "16");
-        if(eps) selectDrama(title, parseInt(eps));
+    function addManual(t) {
+        const e = prompt("몇 부작인가요?", "16");
+        if(e) initCanvas(t, parseInt(e));
     }
 
-    function selectDrama(title, eps) {
-        selectedDrama = { title, eps };
-        document.getElementById('search-results').style.display = 'none';
-        document.getElementById('canvas-section').style.display = 'block';
+    function initCanvas(title, eps, savedPoints = null) {
+        currentDrama = {title, eps};
+        document.getElementById('search-results').style.display='none';
+        document.getElementById('editor-section').style.display='block';
         document.getElementById('target-title').innerText = title.toUpperCase();
         document.getElementById('target-eps').innerText = eps + " EPS";
-        
-        // 간격 보장 및 캔버스 넓이 조절
-        const totalWidth = (eps + 1) * minStepX;
-        canvas.width = Math.max(totalWidth, 370); // 최소 영수증 폭 유지
-        
-        points = new Array(eps).fill(null);
+        document.getElementById('verdict-stamp').style.display = 'none';
+
+        canvas.width = 350; 
+        canvas.height = (eps + 1) * stepY;
+        points = savedPoints || new Array(eps).fill(null);
         draw();
     }
 
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const stepX = canvas.width / (selectedDrama.eps + 1);
-
-        // 가이드선
-        ctx.strokeStyle = '#f1f1f1';
-        for(let i=1; i<=selectedDrama.eps; i++) {
-            ctx.beginPath();
-            ctx.moveTo(i * stepX, 0); ctx.lineTo(i * stepX, canvas.height);
-            ctx.stroke();
+        // 1. 배경 가이드선 & 회차 번호
+        ctx.font = "10px Courier Prime";
+        ctx.fillStyle = "#ccc";
+        for(let i=1; i<=currentDrama.eps; i++) {
+            const py = i * stepY;
+            ctx.fillText(i.toString().padStart(2, '0'), 10, py + 4);
+            ctx.beginPath(); ctx.moveTo(40, py); ctx.lineTo(canvas.width, py);
+            ctx.strokeStyle = "#f1f1f1"; ctx.stroke();
         }
-
-        // 기준선
+        // 2. 중앙 기준선
         ctx.setLineDash([5, 5]);
-        ctx.strokeStyle = '#ddd';
-        ctx.beginPath(); ctx.moveTo(0, 125); ctx.lineTo(canvas.width, 125); ctx.stroke();
-        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(canvas.width/2 + 20, 0); ctx.lineTo(canvas.width/2 + 20, canvas.height);
+        ctx.strokeStyle = "#ddd"; ctx.stroke(); ctx.setLineDash([]);
 
-        // 선
-        ctx.beginPath(); ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 2;
+        // 3. 선 & 도트
+        ctx.beginPath(); ctx.strokeStyle = "#1a1a1a"; ctx.lineWidth = 2;
         let first = true;
-        points.forEach((y, i) => {
-            if (y !== null) {
-                const px = (i + 1) * stepX;
-                if (first) { ctx.moveTo(px, y); first = false; }
-                else ctx.lineTo(px, y);
+        points.forEach((x, i) => {
+            if(x !== null) {
+                const py = (i+1) * stepY;
+                if(first) { ctx.moveTo(x, py); first = false; }
+                else ctx.lineTo(x, py);
             }
         });
         ctx.stroke();
 
-        // 도트
-        points.forEach((y, i) => {
-            if (y !== null) {
-                ctx.fillStyle = y < 125 ? '#1a1a1a' : '#ff4b4b';
-                ctx.fillRect((i+1)*stepX - 3, y - 3, 6, 6);
+        points.forEach((x, i) => {
+            if(x !== null) {
+                ctx.fillStyle = x > canvas.width/2 + 20 ? "#1a1a1a" : "#ff4b4b";
+                ctx.fillRect(x-3, (i+1)*stepY-3, 6, 6);
             }
         });
     }
 
     canvas.addEventListener('mousedown', (e) => {
         const rect = canvas.getBoundingClientRect();
-        // 스크롤된 위치까지 고려한 좌표 계산
-        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
         const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-        
-        const stepX = canvas.width / (selectedDrama.eps + 1);
-        const idx = Math.round(x / stepX) - 1;
-        if (idx >= 0 && idx < selectedDrama.eps) {
-            points[idx] = y;
-            draw();
+        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const idx = Math.round(y / stepY) - 1;
+        if(idx >= 0 && idx < currentDrama.eps) {
+            points[idx] = x; draw(); updateVerdict();
         }
     });
 
-    function saveData() {
-        const history = JSON.parse(localStorage.getItem(`dl_history_${currentUser.nick}`)) || [];
-        history.unshift({ title: selectedDrama.title, date: new Date().toLocaleDateString() });
-        localStorage.setItem(`dl_history_${currentUser.nick}`, JSON.stringify(history));
-        alert("SAVED!");
-        loadHistory();
+    function updateVerdict() {
+        const valid = points.filter(p => p !== null);
+        if(valid.length < 2) return;
+        const start = valid[0]; const end = valid[valid.length-1];
+        const mid = canvas.width / 2 + 20;
+        let res = "";
+        if(start > mid && end > mid) res = "용두용미 (BEST)";
+        else if(start > mid && end <= mid) res = "용두사미 (WORST)";
+        else if(start <= mid && end > mid) res = "사두용미 (REVERSE)";
+        else res = "사두사미 (CONSISTENT)";
+        
+        const stamp = document.getElementById('verdict-stamp');
+        stamp.innerText = res; stamp.style.display = 'block';
     }
 
-    function loadHistory() {
-        const history = JSON.parse(localStorage.getItem(`dl_history_${currentUser.nick}`)) || [];
-        const list = document.getElementById('history-list');
-        list.innerHTML = history.length ? history.map(h => `
-            <div style="border-bottom:1px dotted #eee; padding:5px 0;">
-                <b>${h.title}</b> <span style="float:right; font-size:0.6rem;">${h.date}</span>
-            </div>`).join('') : "NO RECORDS FOUND.";
+    function save() {
+        const db = JSON.parse(localStorage.getItem(`db_${user.n}`)) || [];
+        const idx = db.findIndex(i => i.title === currentDrama.title);
+        const data = { title: currentDrama.title, eps: currentDrama.eps, points, date: new Date().toLocaleDateString() };
+        if(idx > -1) db[idx] = data; else db.unshift(data);
+        localStorage.setItem(`db_${user.n}`, JSON.stringify(db));
+        alert("영수증이 보관함에 기록되었습니다."); loadArchive();
     }
 
-    function toggleHistory() {
-        const list = document.getElementById('history-list');
-        list.style.display = list.style.display === 'block' ? 'none' : 'block';
+    function loadArchive() {
+        const db = JSON.parse(localStorage.getItem(`db_${user.n}`)) || [];
+        const list = document.getElementById('archive-list');
+        list.innerHTML = db.map(i => `<div class="archive-item" onclick="initCanvas('${i.title}', ${i.eps}, [${i.points}])">
+            <b>${i.title}</b> <span style="float:right; font-size:0.6rem;">${i.date}</span>
+        </div>`).join('') || "기록이 없습니다.";
     }
 
-    function logout() { localStorage.removeItem('dl_user'); location.reload(); }
+    function toggleArchive() { 
+        const l = document.getElementById('archive-list'); 
+        l.style.display = l.style.display === 'none' ? 'block' : 'none'; 
+    }
+    function logout() { localStorage.removeItem('dl_u'); location.reload(); }
+    function logout() { localStorage.removeItem('dl_u'); location.reload(); }
 </script>
 </body>
 </html>
