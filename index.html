@@ -7,9 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f2f2f2;
-            --receipt-bg: #f9f9f7;
+            --bg-color: #e5e7eb;
+            --receipt-bg: #fdfdfb;
             --ink-black: #1a1a1a;
+            --guide-line: #e2e8f0;
             --point-red: #ff4b4b;
         }
 
@@ -17,27 +18,27 @@
             font-family: 'Courier Prime', 'Noto Sans KR', monospace;
             background-color: var(--bg-color);
             display: flex;
-            justify-content: center;
-            padding: 40px 20px;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
             margin: 0;
             color: var(--ink-black);
         }
 
-        /* 영수증 외형 */
         .receipt {
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             background: var(--receipt-bg);
-            padding: 40px 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 40px 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
             position: relative;
-            /* 지그재그 절취선 효과 */
-            clip-path: polygon(0% 2%, 5% 0%, 10% 2%, 15% 0%, 20% 2%, 25% 0%, 30% 2%, 35% 0%, 40% 2%, 45% 0%, 50% 2%, 55% 0%, 60% 2%, 65% 0%, 70% 2%, 75% 0%, 80% 2%, 85% 0%, 90% 2%, 95% 0%, 100% 2%, 100% 98%, 95% 100%, 90% 98%, 85% 100%, 80% 98%, 75% 100%, 70% 98%, 65% 100%, 60% 98%, 55% 100%, 50% 98%, 45% 100%, 40% 98%, 35% 100%, 30% 98%, 25% 100%, 20% 98%, 15% 100%, 10% 98%, 5% 100%, 0% 98%);
+            clip-path: polygon(0% 1%, 5% 0%, 10% 1%, 15% 0%, 20% 1%, 25% 0%, 30% 1%, 35% 0%, 40% 1%, 45% 0%, 50% 1%, 55% 0%, 60% 1%, 65% 0%, 70% 1%, 75% 0%, 80% 1%, 85% 0%, 90% 1%, 95% 0%, 100% 1%, 100% 99%, 95% 100%, 90% 99%, 85% 100%, 80% 99%, 75% 100%, 70% 99%, 65% 100%, 60% 99%, 55% 100%, 50% 99%, 45% 100%, 40% 99%, 35% 100%, 30% 99%, 25% 100%, 20% 99%, 15% 100%, 10% 99%, 5% 100%, 0% 99%);
         }
 
-        .header { text-align: center; border-bottom: 2px dashed #ccc; padding-bottom: 20px; margin-bottom: 20px; }
-        .header h1 { font-size: 1.5rem; margin: 0; letter-spacing: 2px; }
-        .info { font-size: 0.8rem; line-height: 1.6; text-align: left; }
+        .header { text-align: center; border-bottom: 2px dashed #ccc; padding-bottom: 15px; margin-bottom: 20px; }
+        .header h1 { font-size: 1.4rem; margin: 0; letter-spacing: 1px; }
+        
+        .info-row { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 5px; }
 
         input {
             width: 100%;
@@ -46,193 +47,222 @@
             background: transparent;
             padding: 10px 0;
             font-family: inherit;
-            font-size: 1rem;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             outline: none;
         }
 
-        /* 드라마 검색 결과 */
         #search-results {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            border: 1px solid #eee;
-            max-height: 150px;
-            overflow-y: auto;
-            display: none;
-            background: white;
+            list-style: none; padding: 0; border: 1px solid #eee; 
+            max-height: 120px; overflow-y: auto; display: none; background: white; margin-bottom: 10px;
         }
-        #search-results li { padding: 10px; border-bottom: 1px dotted #ccc; cursor: pointer; font-size: 0.9rem; }
+        #search-results li { padding: 8px; border-bottom: 1px dotted #ccc; cursor: pointer; font-size: 0.85rem; }
 
-        /* 캔버스 스타일 */
-        #canvas-section { display: none; margin-top: 20px; }
+        /* 캔버스 및 가이드선 */
+        #canvas-section { display: none; margin-top: 15px; }
         canvas {
-            background-image: radial-gradient(#ddd 1px, transparent 1px);
-            background-size: 20px 20px; /* 격자 무늬 */
-            border: 1px solid #333;
+            background-color: white;
+            border: 1px solid var(--ink-black);
             width: 100%;
             height: auto;
             touch-action: none;
         }
 
-        .footer { margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px; text-align: center; }
-        .barcode { font-size: 2.5rem; font-family: 'Libre Barcode 39', cursive; margin: 10px 0; }
-        .btn {
-            background: var(--ink-black);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-family: inherit;
-            margin-top: 10px;
-            width: 100%;
+        /* 내 기록 버튼 및 리스트 */
+        .my-records-btn {
+            background: none; border: 1px solid var(--ink-black);
+            padding: 5px 10px; font-size: 0.7rem; cursor: pointer; margin-top: 10px;
         }
+        #history-list {
+            display: none; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;
+            font-size: 0.8rem; text-align: left; width: 100%;
+        }
+        .history-item { margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px dotted #eee; }
+
+        .btn {
+            background: var(--ink-black); color: white; border: none;
+            padding: 12px; cursor: pointer; font-family: inherit; width: 100%; font-weight: bold;
+        }
+        .logout-btn { font-size: 0.6rem; color: #999; cursor: pointer; text-decoration: underline; margin-top: 10px; display: block; text-align: right; }
     </style>
 </head>
 <body>
 
 <div class="receipt">
     <div class="header">
-        <h1>DRAMA LINE</h1>
-        <p>OFFICIAL CRITIC RECEIPT</p>
+        <h1>DRAMA LINE RECEIPT</h1>
+        <p style="font-size: 0.7rem; margin: 5px 0;">VER. 1.0 (BETA)</p>
     </div>
 
-    <div id="step-1">
-        <input type="text" id="nickname" placeholder="ENTER NICKNAME...">
-        <button class="btn" onclick="nextStep(2)">CONFIRM</button>
+    <div id="login-section">
+        <input type="text" id="nickname" placeholder="NICKNAME">
+        <input type="password" id="password" placeholder="PASSWORD (4 DIGITS)">
+        <button class="btn" onclick="handleLogin()">LOGIN / JOIN</button>
     </div>
 
-    <div id="step-2" style="display:none;">
-        <div class="info">
-            CASHER: <span id="display-nick"></span><br>
-            DATE: <span id="current-date"></span>
+    <div id="main-section" style="display:none;">
+        <div class="info-row">
+            <span>CASHER: <b id="user-display"></b></span>
+            <span>NO: <span id="receipt-no"></span></span>
         </div>
+        
         <input type="text" id="drama-search" placeholder="SEARCH DRAMA..." oninput="searchDrama()">
         <ul id="search-results"></ul>
-    </div>
 
-    <div id="canvas-section">
-        <div style="display:flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px;">
-            <span id="display-title">TITLE</span>
-            <span id="display-eps">00 EPS</span>
+        <div id="canvas-section">
+            <div class="info-row" style="font-weight: bold; margin-top: 10px;">
+                <span id="target-title">TITLE</span>
+                <span id="target-eps">00 EPS</span>
+            </div>
+            <canvas id="chartCanvas" width="370" height="250"></canvas>
+            <button class="btn" onclick="saveData()" style="margin-top:15px;">PRINT & SAVE</button>
         </div>
-        <canvas id="chartCanvas" width="360" height="250"></canvas>
-        <button class="btn" onclick="saveReceipt()">SAVE RECORD</button>
-        <p style="font-size: 0.7rem; color: #777; margin-top:10px;">* CLICK ON GRID TO DRAW YOUR LINE</p>
-    </div>
 
-    <div class="footer">
-        <p>THANK YOU FOR YOUR FEEDBACK</p>
-        <div style="font-size: 1.5rem; letter-spacing: 5px;">||||||||||||||||||||</div>
-        <p style="font-size: 0.7rem;">NO. <span id="receipt-no"></span></p>
+        <button class="my-records-btn" onclick="toggleHistory()">VIEW MY ARCHIVE ▼</button>
+        <div id="history-list"></div>
+        
+        <span class="logout-btn" onclick="logout()">LOGOUT</span>
     </div>
 </div>
 
 <script>
-    // 샘플 데이터
     const dramaDB = [
-        { id: 1, title: "LOVE BETWEEN FAIRY AND DEVIL", episodes: 36 },
-        { id: 2, title: "THE GLORY", episodes: 16 },
-        { id: 3, title: "STEEL FOREST", episodes: 24 },
-        { id: 4, title: "REBORN RICH", episodes: 16 }
+        { title: "창란결", eps: 36 },
+        { title: "더 글로리", eps: 16 },
+        { title: "강철삼림", eps: 24 },
+        { title: "눈물의 여왕", eps: 16 }
     ];
 
-    let nick = "";
+    let currentUser = JSON.parse(localStorage.getItem('dl_user')) || null;
     let selectedDrama = null;
     let points = [];
     const canvas = document.getElementById('chartCanvas');
     const ctx = canvas.getContext('2d');
 
-    // 날짜 및 번호 초기화
-    document.getElementById('current-date').innerText = new Date().toLocaleString();
-    document.getElementById('receipt-no').innerText = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+    // 초기 실행: 자동 로그인 확인
+    if (currentUser) showMain();
 
-    function nextStep(step) {
-        nick = document.getElementById('nickname').value;
-        if(!nick) return alert("ENTER NICKNAME!");
-        document.getElementById('display-nick').innerText = nick;
-        document.getElementById('step-1').style.display = 'none';
-        document.getElementById('step-2').style.display = 'block';
+    function handleLogin() {
+        const nick = document.getElementById('nickname').value;
+        const pw = document.getElementById('password').value;
+        if (!nick || pw.length < 4) return alert("닉네임과 4자리 비밀번호를 확인해주세요.");
+        
+        currentUser = { nick, pw };
+        localStorage.setItem('dl_user', JSON.stringify(currentUser));
+        showMain();
+    }
+
+    function showMain() {
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('main-section').style.display = 'block';
+        document.getElementById('user-display').innerText = currentUser.nick;
+        document.getElementById('receipt-no').innerText = Math.random().toString(36).substr(2, 6).toUpperCase();
+        loadHistory();
     }
 
     function searchDrama() {
-        const query = document.getElementById('drama-search').value.toUpperCase();
-        const resultsUl = document.getElementById('search-results');
-        if(!query) { resultsUl.style.display = 'none'; return; }
-
-        const filtered = dramaDB.filter(d => d.title.includes(query));
-        resultsUl.innerHTML = filtered.map(d => `<li onclick="selectDrama(${d.id})">${d.title}</li>`).join('');
-        resultsUl.style.display = filtered.length ? 'block' : 'none';
+        const query = document.getElementById('drama-search').value.toLowerCase();
+        const results = document.getElementById('search-results');
+        if(!query) return results.style.display = 'none';
+        
+        const filtered = dramaDB.filter(d => d.title.toLowerCase().includes(query));
+        results.innerHTML = filtered.map(d => `<li onclick="selectDrama('${d.title}', ${d.eps})">${d.title} (${d.eps}화)</li>`).join('');
+        results.style.display = filtered.length ? 'block' : 'none';
     }
 
-    function selectDrama(id) {
-        selectedDrama = dramaDB.find(d => d.id === id);
-        document.getElementById('step-2').style.display = 'none';
+    function selectDrama(title, eps) {
+        selectedDrama = { title, eps };
+        document.getElementById('search-results').style.display = 'none';
         document.getElementById('canvas-section').style.display = 'block';
-        document.getElementById('display-title').innerText = selectedDrama.title;
-        document.getElementById('display-eps').innerText = selectedDrama.episodes + " EPS";
-        points = new Array(selectedDrama.episodes).fill(null);
-        render();
+        document.getElementById('target-title').innerText = title.toUpperCase();
+        document.getElementById('target-eps').innerText = eps + " EPS";
+        points = new Array(eps).fill(null);
+        draw();
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const stepX = canvas.width / (selectedDrama.eps + 1);
+
+        // 1. 가이드 세로선 (회차별)
+        ctx.strokeStyle = '#f1f1f1';
+        ctx.lineWidth = 1;
+        for(let i=1; i<=selectedDrama.eps; i++) {
+            ctx.beginPath();
+            ctx.moveTo(i * stepX, 0);
+            ctx.lineTo(i * stepX, canvas.height);
+            ctx.stroke();
+        }
+
+        // 2. 중앙 가로선 (기준선)
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = '#ddd';
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height/2);
+        ctx.lineTo(canvas.width, canvas.height/2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // 3. 연결 선
+        ctx.beginPath();
+        ctx.strokeStyle = '#1a1a1a';
+        ctx.lineWidth = 2;
+        let first = true;
+        points.forEach((y, i) => {
+            if (y !== null) {
+                const px = (i + 1) * stepX;
+                if (first) { ctx.moveTo(px, y); first = false; }
+                else ctx.lineTo(px, y);
+            }
+        });
+        ctx.stroke();
+
+        // 4. 점 (사각 도트)
+        points.forEach((y, i) => {
+            if (y !== null) {
+                ctx.fillStyle = y < canvas.height/2 ? '#1a1a1a' : '#ff4b4b';
+                ctx.fillRect((i+1)*stepX - 3, y - 3, 6, 6);
+            }
+        });
     }
 
     canvas.addEventListener('mousedown', (e) => {
         const rect = canvas.getBoundingClientRect();
         const x = (e.clientX - rect.left) * (canvas.width / rect.width);
         const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-        
-        const stepX = canvas.width / (selectedDrama.episodes + 1);
-        const epIndex = Math.round(x / stepX);
-
-        if (epIndex > 0 && epIndex <= selectedDrama.episodes) {
-            points[epIndex-1] = y;
-            render();
+        const stepX = canvas.width / (selectedDrama.eps + 1);
+        const idx = Math.round(x / stepX) - 1;
+        if (idx >= 0 && idx < selectedDrama.eps) {
+            points[idx] = y;
+            draw();
         }
     });
 
-    function render() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const stepX = canvas.width / (selectedDrama.episodes + 1);
-        
-        // 선 그리기
-        ctx.beginPath();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = '#1a1a1a';
-        let first = true;
-        
-        points.forEach((y, i) => {
-            if (y !== null) {
-                const posX = (i + 1) * stepX;
-                if (first) { ctx.moveTo(posX, y); first = false; }
-                else { ctx.lineTo(posX, y); }
-            }
-        });
-        ctx.stroke();
-
-        // 점 찍기
-        points.forEach((y, i) => {
-            if (y !== null) {
-                const posX = (i + 1) * stepX;
-                ctx.fillStyle = y < canvas.height / 2 ? '#1a1a1a' : '#ff4b4b'; // 낮으면 레드
-                ctx.fillRect(posX-3, y-3, 6, 6); // 사각형 점으로 도트 느낌
-            }
-        });
+    function saveData() {
+        const history = JSON.parse(localStorage.getItem(`dl_history_${currentUser.nick}`)) || [];
+        history.unshift({ title: selectedDrama.title, date: new Date().toLocaleDateString() });
+        localStorage.setItem(`dl_history_${currentUser.nick}`, JSON.stringify(history));
+        alert("영수증이 저장되었습니다.");
+        loadHistory();
     }
 
-    function saveReceipt() {
-        const data = {
-            nick: nick,
-            drama: selectedDrama.title,
-            scores: points
-        };
-        // 로컬스토리지 저장 로직
-        const history = JSON.parse(localStorage.getItem('drama_history') || '[]');
-        history.push(data);
-        localStorage.setItem('drama_history', JSON.stringify(history));
-        
-        alert("RECEIPT SAVED TO YOUR ARCHIVE.");
+    function loadHistory() {
+        const history = JSON.parse(localStorage.getItem(`dl_history_${currentUser.nick}`)) || [];
+        const list = document.getElementById('history-list');
+        list.innerHTML = history.length ? history.map(h => `
+            <div class="history-item">
+                <b>${h.title}</b> <span style="float:right; font-size:0.6rem;">${h.date}</span>
+            </div>`).join('') : "기록이 없습니다.";
+    }
+
+    function toggleHistory() {
+        const list = document.getElementById('history-list');
+        list.style.display = list.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function logout() {
+        localStorage.removeItem('dl_user');
         location.reload();
     }
 </script>
-
 </body>
 </html>
