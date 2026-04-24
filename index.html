@@ -3,20 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drama Line: Heatmap Edition</title>
+    <title>Drama Line: Dragon Loop</title>
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #e5e7eb; --receipt: #fdfdfb; --ink: #1a1a1a; --red: #ff4b4b; }
-        body { font-family: 'Courier Prime', 'Noto Sans KR', monospace; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-        .receipt { width: 100%; max-width: 420px; background: var(--receipt); padding: 40px 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; clip-path: polygon(0% 1%, 5% 0%, 10% 1%, 15% 0%, 20% 1%, 25% 0%, 30% 1%, 35% 0%, 40% 1%, 45% 0%, 50% 1%, 55% 0%, 60% 1%, 65% 0%, 70% 1%, 75% 0%, 80% 1%, 85% 0%, 90% 1%, 95% 0%, 100% 1%, 100% 99%, 95% 100%, 90% 99%, 85% 100%, 80% 99%, 75% 100%, 70% 99%, 65% 100%, 60% 99%, 55% 100%, 50% 98%, 45% 100%, 40% 98%, 35% 100%, 30% 98%, 25% 100%, 20% 98%, 15% 100%, 10% 98%, 5% 100%, 0% 98%); }
+        body { font-family: 'Courier Prime', 'Noto Sans KR', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        
+        .receipt { width: 100%; max-width: 450px; background: var(--receipt); padding: 40px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; clip-path: polygon(0% 1%, 5% 0%, 10% 1%, 15% 0%, 20% 1%, 25% 0%, 30% 1%, 35% 0%, 40% 1%, 45% 0%, 50% 1%, 55% 0%, 60% 1%, 65% 0%, 70% 1%, 75% 0%, 80% 1%, 85% 0%, 90% 1%, 95% 0%, 100% 1%, 100% 99%, 95% 100%, 90% 99%, 85% 100%, 80% 99%, 75% 100%, 70% 99%, 65% 100%, 60% 99%, 55% 100%, 50% 99%, 45% 100%, 40% 99%, 35% 100%, 30% 99%, 25% 100%, 20% 99%, 15% 100%, 10% 99%, 5% 100%, 0% 99%); }
+        
         .header { text-align: center; border-bottom: 2px dashed #ccc; padding-bottom: 15px; margin-bottom: 20px; }
-        input { width: 100%; border: none; border-bottom: 1px solid #ddd; background: transparent; padding: 10px 0; font-family: inherit; margin-bottom: 15px; outline: none; }
-        .canvas-container { position: relative; width: 100%; height: 400px; overflow-y: auto; border: 1px solid var(--ink); background: white; margin-top: 10px; }
-        .btn { background: var(--ink); color: white; border: none; padding: 12px; cursor: pointer; font-family: inherit; width: 100%; font-weight: bold; margin-top: 10px; }
-        .section-title { font-size: 0.9rem; font-weight: bold; border-bottom: 1px solid #333; display: inline-block; margin: 20px 0 10px 0; }
-        .public-stat-card { border: 1px dashed #999; padding: 10px; font-size: 0.75rem; margin-top: 10px; background: #fff; }
-        #search-results { list-style: none; padding: 0; background: white; border: 1px solid #eee; display: none; }
-        #search-results li { padding: 10px; border-bottom: 1px dotted #ccc; cursor: pointer; font-size: 0.8rem; }
+        .info-row { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 10px; }
+        
+        /* 드래곤 조립 영역 */
+        .dragon-assembly { display: flex; width: 100%; height: 150px; border: 1px solid #eee; background: #fff; margin: 20px 0; cursor: pointer; }
+        .part-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px dotted #eee; position: relative; overflow: hidden; transition: background 0.2s; }
+        .part-box:last-child { border-right: none; }
+        .part-box:hover { background: #fcfcfc; }
+        
+        /* 작화 레벨 표시 */
+        .level-tag { position: absolute; top: 5px; font-size: 0.6rem; font-weight: bold; padding: 2px 5px; background: var(--ink); color: #fff; border-radius: 3px; }
+        .part-label { position: absolute; bottom: 5px; font-size: 0.6rem; color: #aaa; }
+
+        /* 가짜 작화 이미지 대체 (텍스트/이모지) */
+        .dragon-img { font-size: 3rem; filter: grayscale(1); }
+        .level-high { filter: grayscale(0) drop-shadow(0 0 2px gold); }
+        .level-low { opacity: 0.3; transform: scale(0.8) rotate(10deg); }
+
+        .verdict-stamp { display: none; text-align: center; margin-top: 20px; font-weight: bold; color: var(--red); border: 3px double var(--red); padding: 10px; transform: rotate(-5deg); font-size: 1.2rem; }
+        .btn { background: var(--ink); color: white; border: none; padding: 15px; cursor: pointer; font-family: inherit; width: 100%; font-weight: bold; margin-top: 20px; }
+        input { width: 100%; border: none; border-bottom: 1px solid #ddd; background: transparent; padding: 10px 0; font-family: inherit; outline: none; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -24,159 +39,105 @@
 <div class="receipt">
     <div class="header">
         <h1>DRAMA LINE</h1>
-        <p style="font-size: 0.65rem;">PUBLIC CONCENSUS SYSTEM</p>
+        <p style="font-size: 0.6rem;">CLICK TO EVOLVE YOUR DRAGON</p>
     </div>
 
-    <div id="auth-section">
-        <input type="text" id="nick" placeholder="NICKNAME">
-        <input type="password" id="pw" placeholder="PIN (4 DIGITS)">
-        <button class="btn" onclick="login()">ENTER SYSTEM</button>
-    </div>
-
-    <div id="main-section" style="display:none;">
-        <input type="text" id="search" placeholder="SEARCH DRAMA..." oninput="searchDrama()">
-        <ul id="search-results"></ul>
-
-        <div id="public-view" style="display:none;">
-            <div class="section-title">GLOBAL CONSENSUS</div>
-            <div id="public-stat-display" class="public-stat-card">
-                </div>
-            <button class="btn" style="background:#fff; color:#000; border:1px solid #000;" onclick="startEditing()">DRAW MY OWN RECEIPT</button>
+    <div id="main-ui">
+        <input type="text" id="drama-title" placeholder="ENTER DRAMA TITLE...">
+        <div class="info-row">
+            <span>CRITIC: <b id="user-name">USER</b></span>
+            <span id="curr-date">2026.04.25</span>
         </div>
 
-        <div id="editor-section" style="display:none;">
-            <div style="display:flex; justify-content: space-between; font-weight:bold; font-size: 0.85rem; margin-top:15px;">
-                <span id="target-title">TITLE</span>
-                <span id="target-eps">00 EPS</span>
+        <div class="dragon-assembly">
+            <div class="part-box" onclick="cyclePart('p1')">
+                <span class="level-tag" id="p1-tag">상</span>
+                <span class="dragon-img" id="p1-img">🐉</span>
+                <span class="part-label">초반: 꼬리</span>
             </div>
-            <div class="canvas-container">
-                <canvas id="chartCanvas"></canvas>
+            <div class="part-box" onclick="cyclePart('p2')">
+                <span class="level-tag" id="p2-tag">상</span>
+                <span class="dragon-img" id="p2-img">🦴</span>
+                <span class="part-label">중반: 몸통</span>
             </div>
-            <button class="btn" onclick="save()">CONFIRM & PRINT</button>
+            <div class="part-box" onclick="cyclePart('p3')">
+                <span class="level-tag" id="p3-tag">상</span>
+                <span class="dragon-img" id="p3-img">🐲</span>
+                <span class="part-label">결말: 얼굴</span>
+            </div>
         </div>
+
+        <div id="verdict-stamp" class="verdict-stamp">용두용미</div>
+        
+        <button class="btn" onclick="saveReceipt()">PRINT & SAVE</button>
     </div>
 </div>
 
 <script>
-    const dramaDB = [ {title:"창란결", eps:36}, {title:"더 글로리", eps:16}, {title:"강철삼림", eps:24} ];
-    let user = JSON.parse(localStorage.getItem('dl_u')) || null;
-    let currentDrama = null;
-    let points = [];
-    const stepY = 40;
-    const canvas = document.getElementById('chartCanvas');
-    const ctx = canvas.getContext('2d');
+    // 상태 관리
+    const levels = ['상', '중', '하'];
+    const state = {
+        p1: 0, // 꼬리
+        p2: 0, // 몸통
+        p3: 0  // 얼굴
+    };
 
-    if(user) showMain();
+    const visuals = {
+        p1: ['🐉', '🦎', '🪱'], // 꼬리: 고퀄용꼬리, 도마뱀꼬리, 지렁이
+        p2: ['🦴', '🍖', '🥓'], // 몸통: 튼튼한뼈대, 평범고기, 베이컨한줄
+        p3: ['🐲', '🦖', '🐶']  // 얼굴: 위엄있는용, 공룡, 댕댕이
+    };
 
-    function login() {
-        const n = document.getElementById('nick').value;
-        const p = document.getElementById('pw').value;
-        if(!n || p.length < 4) return alert("필수 정보를 입력하세요.");
-        user = {n, p}; localStorage.setItem('dl_u', JSON.stringify(user));
-        showMain();
+    function cyclePart(part) {
+        // 0(상) -> 1(중) -> 2(하) -> 다시 0(상) 순환
+        state[part] = (state[part] + 1) % 3;
+        updateUI();
     }
 
-    function showMain() {
-        document.getElementById('auth-section').style.display='none';
-        document.getElementById('main-section').style.display='block';
-    }
-
-    function searchDrama() {
-        const q = document.getElementById('search').value.trim();
-        const res = document.getElementById('search-results');
-        if(!q) return res.style.display='none';
-        const filtered = dramaDB.filter(d => d.title.includes(q));
-        let html = filtered.map(d => `<li onclick="showPublicStats('${d.title}', ${d.eps})">${d.title} (${d.eps}화)</li>`).join('');
-        res.innerHTML = html; res.style.display='block';
-    }
-
-    // 대중 통계 보기 (히트맵 생성 전 단계)
-    function showPublicStats(title, eps) {
-        currentDrama = {title, eps};
-        document.getElementById('search-results').style.display='none';
-        document.getElementById('public-view').style.display='block';
-        document.getElementById('editor-section').style.display='none';
-
-        // 가짜 데이터 생성 (대중 평균 점수 시뮬레이션)
-        const stats = document.getElementById('public-stat-display');
-        stats.innerHTML = `
-            <b>TITLE:</b> ${title.toUpperCase()}<br>
-            <b>TOTAL REVIEWS:</b> ${Math.floor(Math.random()*1500 + 500)}<br>
-            <b>MAIN VERDICT:</b> <span style="color:var(--red)">용두사미 (78%)</span><br>
-            <b>CRITICAL POINT:</b> ${Math.floor(eps*0.7)}회차부터 하락세
-        `;
-    }
-
-    function startEditing() {
-        document.getElementById('public-view').style.display='none';
-        document.getElementById('editor-section').style.display='block';
-        canvas.width = 350;
-        canvas.height = (currentDrama.eps + 1) * stepY;
-        points = new Array(currentDrama.eps).fill(null);
-        draw();
-    }
-
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const midX = canvas.width / 2 + 20;
-
-        // 1. 가이드 세로선 & 파트 구분
-        for(let i=1; i<=currentDrama.eps; i++) {
-            const py = i * stepY;
-            const isPart = i === 1 || i === Math.floor(currentDrama.eps/2) || i === currentDrama.eps;
-            ctx.strokeStyle = isPart ? "#cbd5e1" : "#f1f1f1";
-            ctx.beginPath(); ctx.moveTo(40, py); ctx.lineTo(canvas.width, py); ctx.stroke();
-            ctx.fillStyle = "#ccc"; ctx.fillText(i.toString().padStart(2, '0'), 15, py + 4);
-        }
-
-        // 2. 흐릿한 도트 히트맵 (대중 평가 종합)
-        // 회차마다 대중의 점수가 분포된 느낌을 잉크 도트로 표현
-        for(let i=1; i<=currentDrama.eps; i++) {
-            const py = i * stepY;
-            const avgX = midX + (Math.sin(i*0.8) * 40); // 대중 평균 곡선 시뮬레이션
+    function updateUI() {
+        ['p1', 'p2', 'p3'].forEach(part => {
+            const levelIdx = state[part];
+            const tag = document.getElementById(`${part}-tag`);
+            const img = document.getElementById(`${part}-img`);
             
-            ctx.fillStyle = "rgba(0, 0, 0, 0.05)"; // 아주 흐릿한 검정
-            for(let j=0; j<15; j++) { // 한 회차당 15개의 흩뿌려진 점
-                const noiseX = (Math.random() - 0.5) * 60; // 흩뿌림 정도
-                const noiseY = (Math.random() - 0.5) * 10;
-                ctx.beginPath();
-                ctx.arc(avgX + noiseX, py + noiseY, 1.5, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
+            tag.innerText = levels[levelIdx];
+            img.innerText = visuals[part][levelIdx];
 
-        // 3. 내 선 그래프
-        ctx.beginPath(); ctx.strokeStyle = "#1a1a1a"; ctx.lineWidth = 2.5;
-        let first = true;
-        points.forEach((x, i) => {
-            if(x !== null) {
-                const py = (i+1)*stepY;
-                if(first) { ctx.moveTo(x, py); first = false; }
-                else ctx.lineTo(x, py);
-            }
+            // 시각적 퀄리티 차이 부여
+            img.style.filter = levelIdx === 0 ? "grayscale(0) contrast(1.2)" : 
+                               levelIdx === 1 ? "grayscale(0.5)" : 
+                               "grayscale(1) opacity(0.5) blur(1px)";
         });
-        ctx.stroke();
 
-        points.forEach((x, i) => {
-            if(x !== null) {
-                ctx.fillStyle = x > midX ? "#1a1a1a" : "#ff4b4b";
-                ctx.fillRect(x-3, (i+1)*stepY-3, 6, 6);
-            }
-        });
+        calculateVerdict();
     }
 
-    canvas.addEventListener('mousedown', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-        const idx = Math.round(y / stepY) - 1;
-        if(idx >= 0 && idx < currentDrama.eps) { points[idx] = x; draw(); }
-    });
+    function calculateVerdict() {
+        const p1 = state[p1_idx = 'p1']; // 실제로는 state.p1
+        const p3 = state[p3_idx = 'p3'];
+        
+        let result = "";
+        const stamp = document.getElementById('verdict-stamp');
 
-    function save() {
-        alert("영수증이 발행되었습니다! 대중 지수에 당신의 의견이 반영됩니다.");
-        location.reload();
+        // 초반(p1)과 결말(p3) 비교 (0:상, 2:하)
+        if (state.p1 === 0 && state.p3 === 0) result = "용두용미 (LEGEND)";
+        else if (state.p1 === 0 && state.p3 === 2) result = "용두사미 (SCAM)";
+        else if (state.p1 === 2 && state.p3 === 0) result = "사두용미 (MIRACLE)";
+        else if (state.p1 === 2 && state.p3 === 2) result = "사두사미 (FLOP)";
+        else result = "평범무난 (SO-SO)";
+
+        stamp.innerText = result;
+        stamp.style.display = 'block';
     }
+
+    function saveReceipt() {
+        const title = document.getElementById('drama-title').value || "UNTITLED";
+        alert(`'${title}' 영수증이 발행되었습니다!\n상태: ${levels[state.p1]}-${levels[state.p2]}-${levels[state.p3]}`);
+        // 실제 저장 로직 추가 가능
+    }
+
+    // 초기 날짜 설정
+    document.getElementById('curr-date').innerText = new Date().toLocaleDateString();
 </script>
 </body>
 </html>
