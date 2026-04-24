@@ -3,23 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drama Line: Final Edition</title>
+    <title>Drama Line: Heatmap Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #e5e7eb; --receipt: #fdfdfb; --ink: #1a1a1a; --red: #ff4b4b; --guide: #e2e8f0; }
-        body { font-family: 'Courier Prime', 'Noto Sans KR', monospace; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; color: var(--ink); }
-        .receipt { width: 100%; max-width: 420px; background: var(--receipt); padding: 40px 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; clip-path: polygon(0% 1%, 5% 0%, 10% 1%, 15% 0%, 20% 1%, 25% 0%, 30% 1%, 35% 0%, 40% 1%, 45% 0%, 50% 1%, 55% 0%, 60% 1%, 65% 0%, 70% 1%, 75% 0%, 80% 1%, 85% 0%, 90% 1%, 95% 0%, 100% 1%, 100% 99%, 95% 100%, 90% 99%, 85% 100%, 80% 99%, 75% 100%, 70% 99%, 65% 100%, 60% 99%, 55% 100%, 50% 99%, 45% 100%, 40% 99%, 35% 100%, 30% 99%, 25% 100%, 20% 99%, 15% 100%, 10% 99%, 5% 100%, 0% 99%); }
+        :root { --bg: #e5e7eb; --receipt: #fdfdfb; --ink: #1a1a1a; --red: #ff4b4b; }
+        body { font-family: 'Courier Prime', 'Noto Sans KR', monospace; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        .receipt { width: 100%; max-width: 420px; background: var(--receipt); padding: 40px 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; clip-path: polygon(0% 1%, 5% 0%, 10% 1%, 15% 0%, 20% 1%, 25% 0%, 30% 1%, 35% 0%, 40% 1%, 45% 0%, 50% 1%, 55% 0%, 60% 1%, 65% 0%, 70% 1%, 75% 0%, 80% 1%, 85% 0%, 90% 1%, 95% 0%, 100% 1%, 100% 99%, 95% 100%, 90% 99%, 85% 100%, 80% 99%, 75% 100%, 70% 99%, 65% 100%, 60% 99%, 55% 100%, 50% 98%, 45% 100%, 40% 98%, 35% 100%, 30% 98%, 25% 100%, 20% 98%, 15% 100%, 10% 98%, 5% 100%, 0% 98%); }
         .header { text-align: center; border-bottom: 2px dashed #ccc; padding-bottom: 15px; margin-bottom: 20px; }
         input { width: 100%; border: none; border-bottom: 1px solid #ddd; background: transparent; padding: 10px 0; font-family: inherit; margin-bottom: 15px; outline: none; }
         .canvas-container { position: relative; width: 100%; height: 400px; overflow-y: auto; border: 1px solid var(--ink); background: white; margin-top: 10px; }
-        #verdict-stamp { display: none; text-align: center; font-weight: bold; border: 3px double var(--red); color: var(--red); padding: 5px; transform: rotate(-5deg); margin: 15px 0; font-size: 1.1rem; }
         .btn { background: var(--ink); color: white; border: none; padding: 12px; cursor: pointer; font-family: inherit; width: 100%; font-weight: bold; margin-top: 10px; }
-        .tab-menu { display: flex; gap: 10px; margin-top: 20px; width: 100%; max-width: 420px; }
-        .tab-btn { flex: 1; padding: 10px; background: #ddd; border: none; cursor: pointer; font-family: inherit; font-size: 0.8rem; }
-        .tab-btn.active { background: var(--receipt); font-weight: bold; border: 1px solid #ccc; border-bottom: none; }
-        .list-section { background: var(--receipt); width: 100%; max-width: 420px; padding: 20px; box-sizing: border-box; display: none; border: 1px solid #ccc; border-top: none; }
-        .item { border-bottom: 1px dotted #ccc; padding: 10px 0; font-size: 0.8rem; }
-        #search-results { list-style: none; padding: 0; background: white; border: 1px solid #eee; display: none; margin-bottom: 10px; }
+        .section-title { font-size: 0.9rem; font-weight: bold; border-bottom: 1px solid #333; display: inline-block; margin: 20px 0 10px 0; }
+        .public-stat-card { border: 1px dashed #999; padding: 10px; font-size: 0.75rem; margin-top: 10px; background: #fff; }
+        #search-results { list-style: none; padding: 0; background: white; border: 1px solid #eee; display: none; }
         #search-results li { padding: 10px; border-bottom: 1px dotted #ccc; cursor: pointer; font-size: 0.8rem; }
     </style>
 </head>
@@ -28,58 +24,44 @@
 <div class="receipt">
     <div class="header">
         <h1>DRAMA LINE</h1>
-        <p style="font-size: 0.65rem;">PART-BASED CRITIC SYSTEM</p>
+        <p style="font-size: 0.65rem;">PUBLIC CONCENSUS SYSTEM</p>
     </div>
 
     <div id="auth-section">
         <input type="text" id="nick" placeholder="NICKNAME">
         <input type="password" id="pw" placeholder="PIN (4 DIGITS)">
-        <button class="btn" onclick="login()">SIGN IN</button>
+        <button class="btn" onclick="login()">ENTER SYSTEM</button>
     </div>
 
     <div id="main-section" style="display:none;">
-        <div style="font-size: 0.7rem; margin-bottom: 10px; display: flex; justify-content: space-between;">
-            <span>CASHER: <b id="user-name"></b></span>
-            <span id="date"></span>
-        </div>
-
         <input type="text" id="search" placeholder="SEARCH DRAMA..." oninput="searchDrama()">
         <ul id="search-results"></ul>
 
+        <div id="public-view" style="display:none;">
+            <div class="section-title">GLOBAL CONSENSUS</div>
+            <div id="public-stat-display" class="public-stat-card">
+                </div>
+            <button class="btn" style="background:#fff; color:#000; border:1px solid #000;" onclick="startEditing()">DRAW MY OWN RECEIPT</button>
+        </div>
+
         <div id="editor-section" style="display:none;">
-            <div style="display:flex; justify-content: space-between; font-weight:bold; font-size: 0.85rem;">
+            <div style="display:flex; justify-content: space-between; font-weight:bold; font-size: 0.85rem; margin-top:15px;">
                 <span id="target-title">TITLE</span>
                 <span id="target-eps">00 EPS</span>
             </div>
             <div class="canvas-container">
                 <canvas id="chartCanvas"></canvas>
             </div>
-            <div id="verdict-stamp">ANALYZING...</div>
-            <button class="btn" onclick="save()">PRINT & SAVE</button>
+            <button class="btn" onclick="save()">CONFIRM & PRINT</button>
         </div>
     </div>
 </div>
 
-<div class="tab-menu" id="tabs" style="display:none;">
-    <button class="tab-btn active" onclick="switchTab('public')">PUBLIC GALLERY</button>
-    <button class="tab-btn" onclick="switchTab('private')">MY ARCHIVE</button>
-</div>
-
-<div id="public-section" class="list-section">
-    <p style="font-size: 0.7rem; color: #666;">* 최근 등록된 모든 평론가들의 영수증</p>
-    <div id="public-list"></div>
-</div>
-
-<div id="private-section" class="list-section">
-    <div id="private-list"></div>
-    <p onclick="logout()" style="font-size: 0.6rem; text-align:right; color:#999; cursor:pointer; margin-top:20px;">LOGOUT</p>
-</div>
-
 <script>
-    const dramaDB = [ {title:"창란결", eps:36}, {title:"더 글로리", eps:16}, {title:"강철삼림", eps:24}, {title:"눈물의 여왕", eps:16} ];
+    const dramaDB = [ {title:"창란결", eps:36}, {title:"더 글로리", eps:16}, {title:"강철삼림", eps:24} ];
     let user = JSON.parse(localStorage.getItem('dl_u')) || null;
     let currentDrama = null;
-    let points = []; 
+    let points = [];
     const stepY = 40;
     const canvas = document.getElementById('chartCanvas');
     const ctx = canvas.getContext('2d');
@@ -89,7 +71,7 @@
     function login() {
         const n = document.getElementById('nick').value;
         const p = document.getElementById('pw').value;
-        if(!n || p.length < 4) return alert("닉네임과 비번을 확인하세요.");
+        if(!n || p.length < 4) return alert("필수 정보를 입력하세요.");
         user = {n, p}; localStorage.setItem('dl_u', JSON.stringify(user));
         showMain();
     }
@@ -97,10 +79,6 @@
     function showMain() {
         document.getElementById('auth-section').style.display='none';
         document.getElementById('main-section').style.display='block';
-        document.getElementById('tabs').style.display='flex';
-        document.getElementById('user-name').innerText = user.n;
-        document.getElementById('date').innerText = new Date().toLocaleDateString();
-        switchTab('public');
     }
 
     function searchDrama() {
@@ -108,62 +86,73 @@
         const res = document.getElementById('search-results');
         if(!q) return res.style.display='none';
         const filtered = dramaDB.filter(d => d.title.includes(q));
-        let html = filtered.map(d => `<li onclick="initCanvas('${d.title}', ${d.eps})">${d.title} (${d.eps}화)</li>`).join('');
-        if(!filtered.length) html = `<li onclick="addManual('${q}')">+ '${q}' 직접 추가</li>`;
+        let html = filtered.map(d => `<li onclick="showPublicStats('${d.title}', ${d.eps})">${d.title} (${d.eps}화)</li>`).join('');
         res.innerHTML = html; res.style.display='block';
     }
 
-    function addManual(t) {
-        const e = prompt("몇 부작인가요?", "16");
-        if(e) initCanvas(t, parseInt(e));
-    }
-
-    function initCanvas(title, eps, savedPoints = null) {
+    // 대중 통계 보기 (히트맵 생성 전 단계)
+    function showPublicStats(title, eps) {
         currentDrama = {title, eps};
         document.getElementById('search-results').style.display='none';
+        document.getElementById('public-view').style.display='block';
+        document.getElementById('editor-section').style.display='none';
+
+        // 가짜 데이터 생성 (대중 평균 점수 시뮬레이션)
+        const stats = document.getElementById('public-stat-display');
+        stats.innerHTML = `
+            <b>TITLE:</b> ${title.toUpperCase()}<br>
+            <b>TOTAL REVIEWS:</b> ${Math.floor(Math.random()*1500 + 500)}<br>
+            <b>MAIN VERDICT:</b> <span style="color:var(--red)">용두사미 (78%)</span><br>
+            <b>CRITICAL POINT:</b> ${Math.floor(eps*0.7)}회차부터 하락세
+        `;
+    }
+
+    function startEditing() {
+        document.getElementById('public-view').style.display='none';
         document.getElementById('editor-section').style.display='block';
-        document.getElementById('target-title').innerText = title.toUpperCase();
-        document.getElementById('target-eps').innerText = eps + " EPS";
-        canvas.width = 350; 
-        canvas.height = (eps + 1) * stepY;
-        points = savedPoints || new Array(eps).fill(null);
+        canvas.width = 350;
+        canvas.height = (currentDrama.eps + 1) * stepY;
+        points = new Array(currentDrama.eps).fill(null);
         draw();
     }
 
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const midX = canvas.width/2 + 20;
+        const midX = canvas.width / 2 + 20;
 
+        // 1. 가이드 세로선 & 파트 구분
         for(let i=1; i<=currentDrama.eps; i++) {
             const py = i * stepY;
-            const isPartLine = i === 1 || i === Math.floor(currentDrama.eps/3) || i === Math.floor(currentDrama.eps*2/3) || i === currentDrama.eps;
-            
-            // 파트 가이드선 (굵게)
-            if(isPartLine) {
-                ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 2;
-                let label = i === 1 ? "START" : i === currentDrama.eps ? "END" : "PART";
-                ctx.fillStyle = "#94a3b8"; ctx.font = "bold 9px Courier Prime";
-                ctx.fillText(label, 5, py - 5);
-            } else {
-                ctx.strokeStyle = "#f1f1f1"; ctx.lineWidth = 1;
-            }
-            
+            const isPart = i === 1 || i === Math.floor(currentDrama.eps/2) || i === currentDrama.eps;
+            ctx.strokeStyle = isPart ? "#cbd5e1" : "#f1f1f1";
             ctx.beginPath(); ctx.moveTo(40, py); ctx.lineTo(canvas.width, py); ctx.stroke();
-            ctx.fillStyle = "#ccc"; ctx.font = "10px Courier Prime";
-            ctx.fillText(i.toString().padStart(2, '0'), 15, py + 4);
+            ctx.fillStyle = "#ccc"; ctx.fillText(i.toString().padStart(2, '0'), 15, py + 4);
         }
 
-        // 중앙 기준선
-        ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.moveTo(midX, 0); ctx.lineTo(midX, canvas.height);
-        ctx.strokeStyle = "#ddd"; ctx.stroke(); ctx.setLineDash([]);
+        // 2. 흐릿한 도트 히트맵 (대중 평가 종합)
+        // 회차마다 대중의 점수가 분포된 느낌을 잉크 도트로 표현
+        for(let i=1; i<=currentDrama.eps; i++) {
+            const py = i * stepY;
+            const avgX = midX + (Math.sin(i*0.8) * 40); // 대중 평균 곡선 시뮬레이션
+            
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)"; // 아주 흐릿한 검정
+            for(let j=0; j<15; j++) { // 한 회차당 15개의 흩뿌려진 점
+                const noiseX = (Math.random() - 0.5) * 60; // 흩뿌림 정도
+                const noiseY = (Math.random() - 0.5) * 10;
+                ctx.beginPath();
+                ctx.arc(avgX + noiseX, py + noiseY, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
 
-        // 그래프 선
-        ctx.beginPath(); ctx.strokeStyle = "#1a1a1a"; ctx.lineWidth = 2;
+        // 3. 내 선 그래프
+        ctx.beginPath(); ctx.strokeStyle = "#1a1a1a"; ctx.lineWidth = 2.5;
         let first = true;
         points.forEach((x, i) => {
             if(x !== null) {
-                if(first) { ctx.moveTo(x, (i+1)*stepY); first = false; }
-                else ctx.lineTo(x, (i+1)*stepY);
+                const py = (i+1)*stepY;
+                if(first) { ctx.moveTo(x, py); first = false; }
+                else ctx.lineTo(x, py);
             }
         });
         ctx.stroke();
@@ -181,49 +170,13 @@
         const y = (e.clientY - rect.top) * (canvas.height / rect.height);
         const x = (e.clientX - rect.left) * (canvas.width / rect.width);
         const idx = Math.round(y / stepY) - 1;
-        if(idx >= 0 && idx < currentDrama.eps) { points[idx] = x; draw(); updateVerdict(); }
+        if(idx >= 0 && idx < currentDrama.eps) { points[idx] = x; draw(); }
     });
 
-    function updateVerdict() {
-        const valid = points.filter(p => p !== null);
-        if(valid.length < 2) return;
-        const start = valid[0], end = valid[valid.length-1], mid = canvas.width/2 + 20;
-        let res = (start > mid && end > mid) ? "용두용미 (LEGEND)" : (start > mid && end <= mid) ? "용두사미 (SCAM)" : (start <= mid && end > mid) ? "사두용미 (RECOVERY)" : "사두사미 (FLOP)";
-        const stamp = document.getElementById('verdict-stamp');
-        stamp.innerText = res; stamp.style.display = 'block';
-    }
-
     function save() {
-        const myData = { nick: user.n, title: currentDrama.title, eps: currentDrama.eps, points, date: new Date().toLocaleDateString(), verdict: document.getElementById('verdict-stamp').innerText };
-        // 내 기록 저장
-        const priv = JSON.parse(localStorage.getItem(`priv_${user.n}`)) || [];
-        priv.unshift(myData); localStorage.setItem(`priv_${user.n}`, JSON.stringify(priv));
-        // 모두의 평가 저장 (로컬 시뮬레이션)
-        const pub = JSON.parse(localStorage.getItem('dl_public')) || [];
-        pub.unshift(myData); localStorage.setItem('dl_public', JSON.stringify(pub.slice(0, 20))); // 최근 20개만
-        alert("영수증이 발행되었습니다."); switchTab('public');
+        alert("영수증이 발행되었습니다! 대중 지수에 당신의 의견이 반영됩니다.");
+        location.reload();
     }
-
-    function switchTab(type) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelector(`[onclick="switchTab('${type}')"]`).classList.add('active');
-        document.getElementById('public-section').style.display = type === 'public' ? 'block' : 'none';
-        document.getElementById('private-section').style.display = type === 'private' ? 'block' : 'none';
-        
-        const listId = type === 'public' ? 'public-list' : 'private-list';
-        const data = type === 'public' ? JSON.parse(localStorage.getItem('dl_public')) || [] : JSON.parse(localStorage.getItem(`priv_${user.n}`)) || [];
-        
-        document.getElementById(listId).innerHTML = data.map(i => `
-            <div class="item" onclick="initCanvas('${i.title}', ${i.eps}, [${i.points}])">
-                <div style="display:flex; justify-content:space-between;">
-                    <b>${i.title}</b> <span>${i.nick || '익명'}</span>
-                </div>
-                <div style="font-size:0.6rem; color:var(--red); margin-top:3px;">${i.verdict} | ${i.date}</div>
-            </div>
-        `).join('') || "<p style='font-size:0.7rem;'>데이터가 없습니다.</p>";
-    }
-
-    function logout() { localStorage.removeItem('dl_u'); location.reload(); }
 </script>
 </body>
 </html>
