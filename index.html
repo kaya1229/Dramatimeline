@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drama Line Receipt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f2f2f2;
+            --receipt-bg: #f9f9f7;
+            --ink-black: #1a1a1a;
+            --point-red: #ff4b4b;
+        }
+
+        body {
+            font-family: 'Courier Prime', 'Noto Sans KR', monospace;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            margin: 0;
+            color: var(--ink-black);
+        }
+
+        /* 영수증 외형 */
+        .receipt {
+            width: 100%;
+            max-width: 400px;
+            background: var(--receipt-bg);
+            padding: 40px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            /* 지그재그 절취선 효과 */
+            clip-path: polygon(0% 2%, 5% 0%, 10% 2%, 15% 0%, 20% 2%, 25% 0%, 30% 2%, 35% 0%, 40% 2%, 45% 0%, 50% 2%, 55% 0%, 60% 2%, 65% 0%, 70% 2%, 75% 0%, 80% 2%, 85% 0%, 90% 2%, 95% 0%, 100% 2%, 100% 98%, 95% 100%, 90% 98%, 85% 100%, 80% 98%, 75% 100%, 70% 98%, 65% 100%, 60% 98%, 55% 100%, 50% 98%, 45% 100%, 40% 98%, 35% 100%, 30% 98%, 25% 100%, 20% 98%, 15% 100%, 10% 98%, 5% 100%, 0% 98%);
+        }
+
+        .header { text-align: center; border-bottom: 2px dashed #ccc; padding-bottom: 20px; margin-bottom: 20px; }
+        .header h1 { font-size: 1.5rem; margin: 0; letter-spacing: 2px; }
+        .info { font-size: 0.8rem; line-height: 1.6; text-align: left; }
+
+        input {
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid #ddd;
+            background: transparent;
+            padding: 10px 0;
+            font-family: inherit;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            outline: none;
+        }
+
+        /* 드라마 검색 결과 */
+        #search-results {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #eee;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+            background: white;
+        }
+        #search-results li { padding: 10px; border-bottom: 1px dotted #ccc; cursor: pointer; font-size: 0.9rem; }
+
+        /* 캔버스 스타일 */
+        #canvas-section { display: none; margin-top: 20px; }
+        canvas {
+            background-image: radial-gradient(#ddd 1px, transparent 1px);
+            background-size: 20px 20px; /* 격자 무늬 */
+            border: 1px solid #333;
+            width: 100%;
+            height: auto;
+            touch-action: none;
+        }
+
+        .footer { margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px; text-align: center; }
+        .barcode { font-size: 2.5rem; font-family: 'Libre Barcode 39', cursive; margin: 10px 0; }
+        .btn {
+            background: var(--ink-black);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            margin-top: 10px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="receipt">
+    <div class="header">
+        <h1>DRAMA LINE</h1>
+        <p>OFFICIAL CRITIC RECEIPT</p>
+    </div>
+
+    <div id="step-1">
+        <input type="text" id="nickname" placeholder="ENTER NICKNAME...">
+        <button class="btn" onclick="nextStep(2)">CONFIRM</button>
+    </div>
+
+    <div id="step-2" style="display:none;">
+        <div class="info">
+            CASHER: <span id="display-nick"></span><br>
+            DATE: <span id="current-date"></span>
+        </div>
+        <input type="text" id="drama-search" placeholder="SEARCH DRAMA..." oninput="searchDrama()">
+        <ul id="search-results"></ul>
+    </div>
+
+    <div id="canvas-section">
+        <div style="display:flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px;">
+            <span id="display-title">TITLE</span>
+            <span id="display-eps">00 EPS</span>
+        </div>
+        <canvas id="chartCanvas" width="360" height="250"></canvas>
+        <button class="btn" onclick="saveReceipt()">SAVE RECORD</button>
+        <p style="font-size: 0.7rem; color: #777; margin-top:10px;">* CLICK ON GRID TO DRAW YOUR LINE</p>
+    </div>
+
+    <div class="footer">
+        <p>THANK YOU FOR YOUR FEEDBACK</p>
+        <div style="font-size: 1.5rem; letter-spacing: 5px;">||||||||||||||||||||</div>
+        <p style="font-size: 0.7rem;">NO. <span id="receipt-no"></span></p>
+    </div>
+</div>
+
+<script>
+    // 샘플 데이터
+    const dramaDB = [
+        { id: 1, title: "LOVE BETWEEN FAIRY AND DEVIL", episodes: 36 },
+        { id: 2, title: "THE GLORY", episodes: 16 },
+        { id: 3, title: "STEEL FOREST", episodes: 24 },
+        { id: 4, title: "REBORN RICH", episodes: 16 }
+    ];
+
+    let nick = "";
+    let selectedDrama = null;
+    let points = [];
+    const canvas = document.getElementById('chartCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // 날짜 및 번호 초기화
+    document.getElementById('current-date').innerText = new Date().toLocaleString();
+    document.getElementById('receipt-no').innerText = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+
+    function nextStep(step) {
+        nick = document.getElementById('nickname').value;
+        if(!nick) return alert("ENTER NICKNAME!");
+        document.getElementById('display-nick').innerText = nick;
+        document.getElementById('step-1').style.display = 'none';
+        document.getElementById('step-2').style.display = 'block';
+    }
+
+    function searchDrama() {
+        const query = document.getElementById('drama-search').value.toUpperCase();
+        const resultsUl = document.getElementById('search-results');
+        if(!query) { resultsUl.style.display = 'none'; return; }
+
+        const filtered = dramaDB.filter(d => d.title.includes(query));
+        resultsUl.innerHTML = filtered.map(d => `<li onclick="selectDrama(${d.id})">${d.title}</li>`).join('');
+        resultsUl.style.display = filtered.length ? 'block' : 'none';
+    }
+
+    function selectDrama(id) {
+        selectedDrama = dramaDB.find(d => d.id === id);
+        document.getElementById('step-2').style.display = 'none';
+        document.getElementById('canvas-section').style.display = 'block';
+        document.getElementById('display-title').innerText = selectedDrama.title;
+        document.getElementById('display-eps').innerText = selectedDrama.episodes + " EPS";
+        points = new Array(selectedDrama.episodes).fill(null);
+        render();
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+        
+        const stepX = canvas.width / (selectedDrama.episodes + 1);
+        const epIndex = Math.round(x / stepX);
+
+        if (epIndex > 0 && epIndex <= selectedDrama.episodes) {
+            points[epIndex-1] = y;
+            render();
+        }
+    });
+
+    function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const stepX = canvas.width / (selectedDrama.episodes + 1);
+        
+        // 선 그리기
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#1a1a1a';
+        let first = true;
+        
+        points.forEach((y, i) => {
+            if (y !== null) {
+                const posX = (i + 1) * stepX;
+                if (first) { ctx.moveTo(posX, y); first = false; }
+                else { ctx.lineTo(posX, y); }
+            }
+        });
+        ctx.stroke();
+
+        // 점 찍기
+        points.forEach((y, i) => {
+            if (y !== null) {
+                const posX = (i + 1) * stepX;
+                ctx.fillStyle = y < canvas.height / 2 ? '#1a1a1a' : '#ff4b4b'; // 낮으면 레드
+                ctx.fillRect(posX-3, y-3, 6, 6); // 사각형 점으로 도트 느낌
+            }
+        });
+    }
+
+    function saveReceipt() {
+        const data = {
+            nick: nick,
+            drama: selectedDrama.title,
+            scores: points
+        };
+        // 로컬스토리지 저장 로직
+        const history = JSON.parse(localStorage.getItem('drama_history') || '[]');
+        history.push(data);
+        localStorage.setItem('drama_history', JSON.stringify(history));
+        
+        alert("RECEIPT SAVED TO YOUR ARCHIVE.");
+        location.reload();
+    }
+</script>
+
+</body>
+</html>
